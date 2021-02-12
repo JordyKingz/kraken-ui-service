@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('phonenumber')->unique();
             $table->string('sign_in_code')->unique();
             $table->longText('session_token')->unique()->nullable();
+            $table->decimal('balance')->default(0.00);
             $table->timestamps();
         });
     }

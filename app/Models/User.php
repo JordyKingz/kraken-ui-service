@@ -20,6 +20,7 @@ class User extends Authenticatable
         'phonenumber',
         'sign_in_code',
         'session_token',
+        'balance',
     ];
 
     /**

@@ -13,6 +13,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::post('mollie/webhook', [App\Http\Controllers\PaymentController::class, 'webhook']);
