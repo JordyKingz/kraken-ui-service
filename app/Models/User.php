@@ -31,7 +31,9 @@ class User extends Authenticatable
     protected $hidden = [
         'phonenumber',
         'sign_in_code',
-        'session_token',
     ];
 
+    public function payments() {
+        return $this->hasMany(Payment::class);
+    }
 }

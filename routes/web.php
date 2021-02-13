@@ -13,4 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('mollie/webhook', [App\Http\Controllers\PaymentController::class, 'webhook']);
+Route::post('mollie/webhook',[App\Http\Controllers\PaymentController::class, 'handleWebhookNotification'])
+    ->name('webhooks.mollie');
+
+
+Route::post('/',[App\Http\Controllers\PaymentController::class, 'handleWebhookNotification'])
+    ->name('webhooks.mollie');
