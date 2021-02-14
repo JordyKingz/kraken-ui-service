@@ -6,9 +6,7 @@ use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Mollie\Laravel\Facades\Mollie;
 
 class PaymentController extends Controller
@@ -27,12 +25,16 @@ class PaymentController extends Controller
         {
             $payment = Payment::where('mollie_id', $molliePayment->id)->with('user')->first();
             try {
-                $balance = $payment->user->balance;
+                $user = User::findOrFail($payment->user_id);
+                $balance = $user->balance;
 
                 $balance += $molliePayment->amount->value;
-                $payment->user->balance = $balance;
-                $payment->user->updated_at = Carbon::now();
-                $payment->user->save();
+                $user->balance = $balance;
+                $user->updated_at = Carbon::now();
+                $user->save();
+
+                $payment->paid = true;
+                $payment->save();
 
                 return response()->json([
                     'payment' => $payment,
@@ -90,8 +92,8 @@ class PaymentController extends Controller
                     "value" => $request->depositAmount // You must send the correct number of decimals, thus we enforce the use of strings
                 ],
                 "description" => "Order {$user->id}",
-                "redirectUrl" => "http://localhost:8080/account/deposit/{$id}",
-                "webhookUrl" => 'https://5a6cca1da4bd.ngrok.io', //route('webhooks.mollie'),
+                "redirectUrl" => "http://localhost:8080/account/deposit/{$user->sign_in_code}/status/{$id}",
+                "webhookUrl" => 'https://13fd378b0d32.ngrok.io', //route('webhooks.mollie'),
                 "metadata" => [
                     "order_id" => $id,
                 ],
@@ -112,22 +114,51 @@ class PaymentController extends Controller
                 'message' => $e->getMessage(),
             ], 400);
         }
+    }
 
-//        // TODO DElETE LATER
-//        try {
-//            $balance = $user->balance;
-//            $balance += $request->depositAmount;
-//            $user->balance = $balance;
-//            $user->updated_at = Carbon::now();
-//            $user->save();
-//        } catch (\ErrorException $e) {
-//            return response()->json([
-//                'message' => $e->getMessage(),
-//            ], 400);
-//        }
-//
-//        return response()->json([
-//            'payment' => $payment,
-//        ], 200);
+    /**
+     * Deposit payment status
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function paymentStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'paymentId' => ['required'],
+            'bearer' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = User::where('session_token', $request->bearer)->first();
+        if ($user === null) {
+            return response()->json([
+                'message' => "No user or payment found",
+            ], 404);
+        }
+
+        $payment = Payment::where('id',$request->paymentId)->where('user_id', $user->id)->with('user')->first();
+        if ($payment === null) {
+            return response()->json([
+                'message' => "No payment found",
+            ], 204);
+        }
+
+        $molliePayment = Mollie::api()->payments->get($payment->mollie_id);
+
+        if ($molliePayment->isPaid())
+        {
+            return response()->json([
+                'payment' => $payment,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Payment failed.',
+            ], 400);
+        }
     }
 }

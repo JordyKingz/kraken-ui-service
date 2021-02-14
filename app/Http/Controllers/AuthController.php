@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\SendSigninCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -27,15 +28,17 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $user = User::where('phonenumber', $request->phonenumber)->first();
+        $user = User::where('phonenumber', "+31 6 {$request->phonenumber}")->first();
 
         $sign_in_code = Str::random(10);
         if ($user === null) {
             try {
-                User::create([
-                    'phonenumber' => $request->phonenumber,
+                $user = User::create([
+                    'phonenumber' => "+31 6 {$request->phonenumber}",
                     'sign_in_code' => $sign_in_code,
                 ]);
+
+                $user->notify(new SendSigninCode($user));
             } catch (\ErrorException $e) {
                 return response()->json([
                     'message' => $e->getMessage(),
@@ -45,14 +48,14 @@ class AuthController extends Controller
             try {
                 $user->sign_in_code = $sign_in_code;
                 $user->save();
+
+                $user->notify(new SendSigninCode($user));
             } catch (\ErrorException $e) {
                 return response()->json([
                     'message' => $e->getMessage(),
                 ], 400);
             }
         }
-
-        // TODO Send SMS
 
         return response()->json([
             'message' => "Your sign in code is send.",

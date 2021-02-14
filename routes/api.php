@@ -19,6 +19,7 @@ Route::group(['middelware' => ['api'], 'prefix' => 'v1'], function() {
     Route::post('validate-sign-in', [App\Http\Controllers\AuthController::class, 'validateSignIn']);
 
     Route::post('deposit', [App\Http\Controllers\PaymentController::class, 'deposit']);
+    Route::post('deposit/status', [App\Http\Controllers\PaymentController::class, 'paymentStatus']);
 
     Route::get('profile/{session_token}',[App\Http\Controllers\Controller::class, 'index']);
 });

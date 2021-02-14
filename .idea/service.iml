@@ -115,6 +115,16 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/service-contracts" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/mollie/mollie-api-php" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/mollie/laravel-mollie" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/lcobucci/clock" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/lcobucci/jwt" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/vonage/client" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/vonage/nexmo-bridge" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/vonage/client-core" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/nexmo/laravel" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/psr/http-factory" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/laravel/nexmo-notification-channel" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-diactoros" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-zendframework-bridge" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
